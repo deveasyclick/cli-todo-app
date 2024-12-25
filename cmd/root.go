@@ -1,30 +1,32 @@
 /*
 Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
+	"bufio"
+	"fmt"
+	"log"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
 
-
-
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "cli-todo-app",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	Short: "A lightweight CLI to-do app for managing tasks, setting priorities, and staying organized directly from your terminal.",
+	Long: `A simple and efficient CLI-based to-do app that helps you organize tasks, set priorities, and track progress directly from your terminal. 
+	
+	Perfect for developers and productivity enthusiasts who prefer lightweight tools without distractions.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Welcome to Easyclick CLI todo app")
+		readEmailAndPassword()
+		// create a user if it doesn't exists
+		// login a user if it exists
+		// Prevent unauthenticated user from running a command
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -48,4 +50,28 @@ func init() {
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
+func readEmailAndPassword() {
+	email := readInput("email")
+	password := readInput("password")
+	fmt.Println("aaa", email, password)
+}
 
+func readInput(inputName string) string {
+	var input string
+	var err error
+	for {
+		fmt.Printf(fmt.Sprintf("Please enter your %s\n", inputName))
+		reader := bufio.NewReader(os.Stdin)
+		input, err = reader.ReadString('\n')
+		if err != nil {
+			log.Panic(err)
+		}
+
+		if len(strings.TrimSpace(input)) <= 0 {
+			continue
+		}
+
+		break
+	}
+	return input
+}

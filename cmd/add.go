@@ -7,14 +7,14 @@ import (
 )
 
 func init() {
-	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(addCmd)
 }
 
-var yusufCmd = &cobra.Command{
-	Use:   "yusuf",
-	Short: "Print log by yusuf",
+var addCmd = &cobra.Command{
+	Use:   "face",
+	Short: "Print face word",
 	Long:  `All software has versions. This is Hugo's`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Yusuf testing cli")
+		fmt.Println("This is my face")
 	},
 }
