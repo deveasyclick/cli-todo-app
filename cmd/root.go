@@ -10,7 +10,14 @@ import (
 	"os"
 	"strings"
 
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
+	"github.com/yusufniyi/cli-todo-app/cmd/steps"
+	"github.com/yusufniyi/cli-todo-app/cmd/ui/textinput"
+	"github.com/yusufniyi/cli-todo-app/internal/database"
+	"github.com/yusufniyi/cli-todo-app/internal/database/models"
+	"github.com/yusufniyi/cli-todo-app/internal/services"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -21,8 +28,29 @@ var rootCmd = &cobra.Command{
 	
 	Perfect for developers and productivity enthusiasts who prefer lightweight tools without distractions.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		var email, password, name string
+		var user models.User
 		fmt.Println("Welcome to Easyclick CLI todo app")
-		readEmailAndPassword()
+		email = readInput("email")
+		password = readInput("password")
+		userService := &services.UserService{
+			DB: database.DB,
+		}
+		userExists := userService.CheckIfUserAlreadyExistsByEmail(email)
+		if !userExists {
+			name = readInput("fullname")
+			user = userService.Signup(&models.User{Email: email, Password: password, Name: name})
+		}
+
+		result := textinput.Result{Output: ""}
+		steps := steps.InitSteps()
+		step := steps.Steps["actions"]
+		p := tea.NewProgram(textinput.InitialTextInputModel(&result, step))
+		if _, err := p.Run(); err != nil {
+			fmt.Printf("Alas, there's been an error: %v", err)
+			os.Exit(1)
+		}
+		fmt.Println("aaaaaaaaaaaa", result.Output, user)
 		// create a user if it doesn't exists
 		// login a user if it exists
 		// Prevent unauthenticated user from running a command
@@ -50,17 +78,12 @@ func init() {
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func readEmailAndPassword() {
-	email := readInput("email")
-	password := readInput("password")
-	fmt.Println("aaa", email, password)
-}
-
 func readInput(inputName string) string {
 	var input string
 	var err error
+	subtleStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
 	for {
-		fmt.Printf(fmt.Sprintf("Please enter your %s\n", inputName))
+		fmt.Printf(subtleStyle.Render(fmt.Sprintf("Please enter your %s\n", inputName)))
 		reader := bufio.NewReader(os.Stdin)
 		input, err = reader.ReadString('\n')
 		if err != nil {
