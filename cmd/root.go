@@ -4,11 +4,8 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"bufio"
 	"fmt"
-	"log"
 	"os"
-	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -22,10 +19,6 @@ var rootCmd = &cobra.Command{
 	Perfect for developers and productivity enthusiasts who prefer lightweight tools without distractions.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Welcome to Easyclick CLI todo app")
-		readEmailAndPassword()
-		// create a user if it doesn't exists
-		// login a user if it exists
-		// Prevent unauthenticated user from running a command
 	},
 }
 
@@ -48,30 +41,4 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-
-func readEmailAndPassword() {
-	email := readInput("email")
-	password := readInput("password")
-	fmt.Println("aaa", email, password)
-}
-
-func readInput(inputName string) string {
-	var input string
-	var err error
-	for {
-		fmt.Printf(fmt.Sprintf("Please enter your %s\n", inputName))
-		reader := bufio.NewReader(os.Stdin)
-		input, err = reader.ReadString('\n')
-		if err != nil {
-			log.Panic(err)
-		}
-
-		if len(strings.TrimSpace(input)) <= 0 {
-			continue
-		}
-
-		break
-	}
-	return input
 }
