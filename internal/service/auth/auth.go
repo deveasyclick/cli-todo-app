@@ -87,7 +87,9 @@ func (authService *AuthService) Signup(user *models.User) models.User {
 		log.Fatalln("Error generating jwt token")
 	}
 
-	file_service.SaveToFile(config.AuthFileName, token)
+	if err := file_service.SaveToFile(config.AuthFileName, token); err != nil {
+		fmt.Println("Unable to write login data to file")
+	}
 
 	fmt.Println("User signup successfully")
 	return dbUser
