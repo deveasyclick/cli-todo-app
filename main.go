@@ -5,13 +5,11 @@ package main
 
 import (
 	"github.com/yusufniyi/cli-todo-app/cmd"
-	"github.com/yusufniyi/cli-todo-app/internal/database"
-	"github.com/yusufniyi/cli-todo-app/internal/loaders"
+	"github.com/yusufniyi/cli-todo-app/internal/db"
 )
 
 func main() {
-	loaders.LoadEnvVariables()
-	database.Open()
-	defer database.Close()
+	db.ConnectDatabase()
+	defer db.DBInstance.Close()
 	cmd.Execute()
 }
