@@ -23,11 +23,8 @@ func hashPassword(password string) string {
 
 func comparePassword(hashedPassword string, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
-	if err != nil {
-		return false
-	}
 
-	return true
+	return err == nil
 }
 
 func generateJwtToken(email string, userId int) (string, error) {
@@ -42,7 +39,7 @@ func generateJwtToken(email string, userId int) (string, error) {
 
 	tokenString, err := token.SignedString(config.TokenEncryptionKey)
 	if err != nil {
-		return "", fmt.Errorf("failed to sign token: %w", err)
+		return "", fmt.Errorf("Fatal: failed to sign token: %w", err)
 	}
 
 	return tokenString, nil
@@ -53,7 +50,7 @@ func decodeJwtoken(tokenString string) (jwt.MapClaims, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Validate the signing method
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("Fatal: unexpected signing method: %v", token.Header["alg"])
 		}
 		return config.TokenEncryptionKey, nil
 	})
@@ -68,7 +65,7 @@ func decodeJwtoken(tokenString string) (jwt.MapClaims, error) {
 		fmt.Println("Claims:", claims)
 		return claims, nil
 	} else {
-		return jwt.MapClaims{}, errors.New("Invalid jwt claim")
+		return jwt.MapClaims{}, errors.New("Fatal: Invalid jwt claim")
 	}
 }
 
@@ -79,13 +76,14 @@ func isUserAuthenticated(email string) bool {
 	// Compare emails
 	encryptedToken, err := file_service.ReadFromFile(config.AuthFileName)
 	if err != nil {
-		log.Fatalln("Error reading data:", err)
+		log.Println("Warning: error reading authentication data:", err)
+		return false
 	}
 
 	// Decrypt the data
 	decryptedToken, err := utils.Decrypt(config.TokenEncryptionKey, encryptedToken)
 	if err != nil {
-		fmt.Println("Error decrypting data:", err)
+		fmt.Println("Warning: failed to decrypt data:", err)
 		return false
 	}
 

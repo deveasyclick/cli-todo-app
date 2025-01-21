@@ -29,7 +29,7 @@ func ReadFromFile(filePath string) (string, error) {
 	// Open the file for reading
 	file, err := os.Open(filePath)
 	if err != nil {
-		return "", fmt.Errorf("error opening file: %w", err)
+		return "", err
 	}
 	defer file.Close()
 
@@ -45,7 +45,7 @@ func ReadFromFile(filePath string) (string, error) {
 
 	// Check for errors during scanning
 	if err := scanner.Err(); err != nil {
-		return "", fmt.Errorf("error reading file: %w", err)
+		return "", err
 	}
 
 	return token, nil

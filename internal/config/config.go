@@ -21,5 +21,6 @@ func init() {
 
 	DatabaseUrl = os.Getenv("DATABASE_URL")
 	TokenEncryptionKey = os.Getenv("TOKEN_ENCRYPTION_KEY")
-	AuthFileName = os.Getenv("AUTH_FILENAME")
+	home, _ := os.UserHomeDir()
+	AuthFileName = home + os.Getenv("AUTH_FILENAME")
 }

@@ -11,7 +11,7 @@ import (
 )
 
 type DB struct {
-	conn *pgx.Conn
+	Conn *pgx.Conn
 }
 
 var (
@@ -25,7 +25,7 @@ func ConnectDatabase() {
 		os.Exit(1)
 	}
 	log.Println("Database connected")
-	DBInstance = &DB{conn: dbConn}
+	DBInstance = &DB{Conn: dbConn}
 
 	createUserTable := `
 		CREATE TABLE IF NOT EXISTS users (
@@ -59,5 +59,5 @@ func ConnectDatabase() {
 }
 
 func (db *DB) Close() {
-	db.conn.Close(context.Background())
+	DBInstance.Conn.Close(context.Background())
 }
