@@ -35,26 +35,26 @@ func (authService *AuthService) Login(email string, password string) {
 
 	user, err := authService.UserRepository.FindUser(email)
 	if err != nil {
-		log.Fatalf("Unable to fetch user with email %s from database", email)
+		log.Fatalf("Fatal: Unable to fetch user with email %s from database", email)
 	}
 
 	hasCorrectPassword := comparePassword(user.Password, password)
 
 	if !hasCorrectPassword {
-		log.Fatalln("Incorrect login details. Please try again")
+		log.Fatalln("Fatal: Incorrect login details. Please try again")
 	}
 
 	token, err := generateJwtToken(email, user.ID)
 	if err != nil {
-		log.Fatalln("Error generating jwt token for user")
+		log.Fatalln("Fatal: Error generating jwt token for user")
 	}
 	encryptedToken, err := utils.Encrypt(config.TokenEncryptionKey, token)
 	if err != nil {
-		fmt.Println("Failed to encrypt user data")
+		fmt.Println("Fatal: Failed to encrypt user data")
 		os.Exit(1)
 	}
 	if err = file_service.SaveToFile(config.AuthFileName, encryptedToken); err != nil {
-		log.Fatalln("Unable to save login data", err)
+		log.Fatalln(err)
 	}
 
 	fmt.Println("User login successfully")
