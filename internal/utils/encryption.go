@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"io"
 )
 
@@ -13,7 +14,7 @@ import (
 func Encrypt(key, plaintext string) (string, error) {
 	block, err := aes.NewCipher([]byte(key))
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("Invalid encryption key length: %w", err)
 	}
 
 	// Generate a random initialization vector (IV)

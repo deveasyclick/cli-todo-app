@@ -27,9 +27,10 @@ func (authService *AuthService) Login(email string, password string) {
 	// Print user login successfully
 
 	// Read encrypted data from the file
-	isAlreadyAuthenticated := isUserAuthenticated(email)
+	isAlreadyAuthenticated := isUserEmailAuthenticated(email)
 
 	if isAlreadyAuthenticated {
+		fmt.Println("User is already authenticated")
 		return
 	}
 
@@ -72,35 +73,44 @@ func (authService *AuthService) Signup(user *models.User) models.User {
 	var userId int
 	var dbUser models.User
 	var token string
-	userId, err = authService.UserRepository.AddUser(user)
-	if err != nil {
-		log.Fatalln("Error adding user to the database")
-	}
+
 	dbUser, err = authService.UserRepository.FindUser(user.Email)
 	if err != nil {
-		log.Fatalln("Error fetching user from the database")
+		log.Fatalln(err)
 	}
-	log.Printf("User with id %d added to database", userId)
+
+	if dbUser.Email == user.Email {
+		log.Fatalln("User already exists, please sign in.")
+	}
+
+	userId, err = authService.UserRepository.AddUser(user)
+	if err != nil {
+		log.Fatalln("Error adding user to the database", err)
+	}
 
 	token, err = generateJwtToken(user.Email, userId)
 	if err != nil {
-		log.Fatalln("Error generating jwt token")
+		log.Fatalln(err)
 	}
 
 	if err := file_service.SaveToFile(config.AuthFileName, token); err != nil {
 		fmt.Println("Unable to write login data to file")
 	}
 
-	fmt.Println("User signup successfully")
+	fmt.Printf("User with id %d registered successfully\n", userId)
 	return dbUser
 }
 
-func (userService *AuthService) Logout(user *models.User) {
-	// Remove token from file
-}
-
-func (userService *AuthService) Authenticate(email string) {
-	if !isUserAuthenticated(email) {
+func (authService *AuthService) Authenticate(email string) {
+	if !isUserEmailAuthenticated(email) {
 		log.Fatalln("Authentication required")
 	}
+}
+
+func (authService *AuthService) Logout() {
+	if err := file_service.DeleteFile(config.AuthFileName); err != nil && !os.IsNotExist(err) {
+		log.Fatalln(err)
+	}
+
+	fmt.Println("User logout successfully")
 }
