@@ -37,7 +37,7 @@ func generateJwtToken(email string, userId int) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString(config.TokenEncryptionKey)
+	tokenString, err := token.SignedString([]byte(config.TokenEncryptionKey))
 	if err != nil {
 		return "", fmt.Errorf("Fatal: failed to sign token: %w", err)
 	}
@@ -52,7 +52,7 @@ func decodeJwtoken(tokenString string) (jwt.MapClaims, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Fatal: unexpected signing method: %v", token.Header["alg"])
 		}
-		return config.TokenEncryptionKey, nil
+		return []byte(config.TokenEncryptionKey), nil
 	})
 
 	if err != nil {
@@ -61,36 +61,41 @@ func decodeJwtoken(tokenString string) (jwt.MapClaims, error) {
 
 	// Check if the token is valid
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		fmt.Println("Token is valid")
-		fmt.Println("Claims:", claims)
 		return claims, nil
 	} else {
 		return jwt.MapClaims{}, errors.New("Fatal: Invalid jwt claim")
 	}
 }
 
-func isUserAuthenticated(email string) bool {
+func isUserAuthenticated() (bool, string) {
 	// Read encrypted token
 	// Decrypt the token
 	// Decode the token
 	// Compare emails
 	encryptedToken, err := file_service.ReadFromFile(config.AuthFileName)
 	if err != nil {
-		log.Println("Warning: error reading authentication data:", err)
-		return false
+		log.Println("Warning: error reading encrypted token from file:", err)
 	}
 
-	// Decrypt the data
-	decryptedToken, err := utils.Decrypt(config.TokenEncryptionKey, encryptedToken)
-	if err != nil {
-		fmt.Println("Warning: failed to decrypt data:", err)
-		return false
-	}
+	if encryptedToken != "" {
+		// Decrypt the data
+		decryptedToken, err := utils.Decrypt(config.TokenEncryptionKey, encryptedToken)
+		if err != nil {
+			fmt.Println("Warning: failed to decrypt data:", err)
+			return false, ""
+		}
 
-	claims, err := decodeJwtoken(decryptedToken)
-	if err != nil {
-		fmt.Println("claims", claims)
+		claims, err := decodeJwtoken(decryptedToken)
+		if err != nil {
+			log.Fatal(err)
+		}
+		claimEmail, ok := claims["email"]
+		return ok, claimEmail.(string)
 	}
+	return false, ""
+}
 
-	return claims["email"] == email
+func isUserEmailAuthenticated(email string) bool {
+	isAuthenticated, authenticatedEmail := isUserAuthenticated()
+	return isAuthenticated && authenticatedEmail == email
 }

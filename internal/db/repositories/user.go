@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/yusufniyi/cli-todo-app/internal/db"
 	"github.com/yusufniyi/cli-todo-app/internal/db/models"
 )
@@ -43,15 +44,15 @@ func (userRepository UserRepository) DeleteUser(userId int) error {
 
 func (userRepository UserRepository) FindUser(email string) (models.User, error) {
 	query := `
-		SELECT id, name, email, createdAt
+		SELECT id, name, email, password, created_at
 		FROM users
 		WHERE email = $1;
 	`
 	user := models.User{}
-	err := db.DBInstance.Conn.QueryRow(context.Background(), query, email).Scan(&user.ID, &user.Name, &user.Email, &user.Created_at)
+	err := db.DBInstance.Conn.QueryRow(context.Background(), query, email).Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Created_at)
 
-	if err != nil {
-		return user, fmt.Errorf("failed to get user with email %s: %w", email, err)
+	if err != nil && err != pgx.ErrNoRows {
+		return user, fmt.Errorf("Fatal: failed to get user with email %s: %w", email, err)
 	}
 
 	return user, nil
