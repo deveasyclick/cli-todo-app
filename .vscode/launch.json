@@ -5,40 +5,40 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Debug Signup",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}",
+      "args": ["signup", "--email", "easyclick05@gmail.com", "--password", "123456", "-n", "Yusuf Adeniyi"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Debug Login",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}",
+      "args": ["login", "--email", "easyclick05@gmail.com", "--password", "123456"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Debug Logout",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}",
+      "args": ["logout"],
+      "console": "integratedTerminal"
+    },
+    {
       "name": "Debug Add Todo",
       "type": "go",
       "request": "launch",
       "mode": "debug",
       "program": "${workspaceFolder}",
-      "args": ["add"],
+      "args": ["add", "--title", "Read some books", "-d", "Read book by 4pm"],
       "console": "integratedTerminal"
     },
-    // {
-    //   "name": "Debug Signup",
-    //   "type": "go",
-    //   "request": "launch",
-    //   "mode": "debug",
-    //   "program": "${workspaceFolder}",
-    //   "args": ["signup", "--email", "easyclick05@gmail.com", "--password", "123456", "-n", "Yusuf Adeniyi"],
-    //   "console": "integratedTerminal"
-    // },
-    // {
-    //   "name": "Debug Login",
-    //   "type": "go",
-    //   "request": "launch",
-    //   "mode": "debug",
-    //   "program": "${workspaceFolder}",
-    //   "args": ["login", "--email", "easyclick05@gmail.com", "--password", "123456"],
-    //   "console": "integratedTerminal"
-    // },
-    // {
-    //   "name": "Debug Logout",
-    //   "type": "go",
-    //   "request": "launch",
-    //   "mode": "debug",
-    //   "program": "${workspaceFolder}",
-    //   "args": ["logout"],
-    //   "console": "integratedTerminal"
-    // }
   ]
 }

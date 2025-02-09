@@ -101,16 +101,18 @@ func (authService *AuthService) Signup(user *models.User) models.User {
 	return dbUser
 }
 
-func (authService *AuthService) Authenticate(email string) {
-	if !isUserEmailAuthenticated(email) {
-		log.Fatalln("Authentication required")
-	}
-}
-
 func (authService *AuthService) Logout() {
 	if err := file_service.DeleteFile(config.AuthFileName); err != nil && !os.IsNotExist(err) {
 		log.Fatalln(err)
 	}
 
 	fmt.Println("User logout successfully")
+}
+
+func (authService *AuthService) Authenticate() Token {
+	isAuthenicated, token := authenticate()
+	if !isAuthenicated {
+		log.Fatalln("Unauthorized command, please login.")
+	}
+	return token
 }

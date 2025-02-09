@@ -13,6 +13,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type Token struct {
+	Email string
+	ID    int
+}
+
 func hashPassword(password string) string {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -67,7 +72,7 @@ func decodeJwtoken(tokenString string) (jwt.MapClaims, error) {
 	}
 }
 
-func isUserAuthenticated() (bool, string) {
+func authenticate() (bool, Token) {
 	// Read encrypted token
 	// Decrypt the token
 	// Decode the token
@@ -82,20 +87,23 @@ func isUserAuthenticated() (bool, string) {
 		decryptedToken, err := utils.Decrypt(config.TokenEncryptionKey, encryptedToken)
 		if err != nil {
 			fmt.Println("Warning: failed to decrypt data:", err)
-			return false, ""
+			return false, Token{}
 		}
 
 		claims, err := decodeJwtoken(decryptedToken)
 		if err != nil {
 			log.Fatal(err)
 		}
-		claimEmail, ok := claims["email"]
-		return ok, claimEmail.(string)
+		email, ok := claims["email"].(string)
+		return ok, Token{
+			Email: email,
+			ID:    int(claims["userId"].(float64)),
+		}
 	}
-	return false, ""
+	return false, Token{}
 }
 
 func isUserEmailAuthenticated(email string) bool {
-	isAuthenticated, authenticatedEmail := isUserAuthenticated()
-	return isAuthenticated && authenticatedEmail == email
+	isAuthenticated, token := authenticate()
+	return isAuthenticated && token.Email == email
 }
