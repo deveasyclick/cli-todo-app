@@ -22,6 +22,7 @@ func (todoService *TodoService) AddTodo(title string, desc string, userId int) {
 	}
 	_, err := todoService.Repository.Add(&todoObject)
 	var pgErr *pgconn.PgError
+	// Log different message for duplicate todo error
 	if err != nil && errors.As(err, &pgErr) && pgErr.Code == "23505" {
 		log.Fatalf("Fatal: Todo with title %s already exists", title)
 	} else if err != nil {

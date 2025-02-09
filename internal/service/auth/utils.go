@@ -86,7 +86,7 @@ func authenticate() (bool, Token) {
 		// Decrypt the data
 		decryptedToken, err := utils.Decrypt(config.TokenEncryptionKey, encryptedToken)
 		if err != nil {
-			fmt.Println("Warning: failed to decrypt data:", err)
+			fmt.Println("Warning: failed to decrypt token:", err)
 			return false, Token{}
 		}
 
