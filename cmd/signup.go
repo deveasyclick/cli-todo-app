@@ -41,7 +41,6 @@ var signupCmd = &cobra.Command{
 			Password: userSignupPassword,
 			Email:    userSignupEmail,
 		}
-		user = auth.Signup(&user)
-		fmt.Println(user)
+		auth.Signup(&user)
 	},
 }

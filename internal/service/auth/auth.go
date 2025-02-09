@@ -97,14 +97,8 @@ func (authService *AuthService) Signup(user *models.User) models.User {
 		fmt.Println("Unable to write login data to file")
 	}
 
-	fmt.Printf("User with id %d registered successfully\n", userId)
+	fmt.Printf("User with email %s registered successfully\n", user.Email)
 	return dbUser
-}
-
-func (authService *AuthService) Authenticate(email string) {
-	if !isUserEmailAuthenticated(email) {
-		log.Fatalln("Authentication required")
-	}
 }
 
 func (authService *AuthService) Logout() {
@@ -113,4 +107,12 @@ func (authService *AuthService) Logout() {
 	}
 
 	fmt.Println("User logout successfully")
+}
+
+func (authService *AuthService) Authenticate() Token {
+	isAuthenicated, token := authenticate()
+	if !isAuthenicated {
+		log.Fatalln("Unauthorized command, please login.")
+	}
+	return token
 }

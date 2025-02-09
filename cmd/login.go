@@ -26,7 +26,7 @@ var loginCmd = &cobra.Command{
 	Short: "Login to app",
 	Long:  "Login to app",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("login command is running", email, password)
+		fmt.Println("login command is running", email)
 		if email == "" || password == "" {
 			log.Fatal("fatal: You must specify the usernname and password")
 		}

@@ -51,7 +51,7 @@ Before running the CLI app, ensure the following dependencies are installed:
 
 The `login` command allows you to log in using your email and password.
 
-```cli-app login -e <email> -p <password>```
+```todo login -e <email> -p <password>```
 
 #### Flags
 
@@ -60,7 +60,23 @@ The `login` command allows you to log in using your email and password.
 
 #### Example
 
-```cli-app login -e user@example.com -p MySecurePassword123```
+```todo login -e user@example.com -p MySecurePassword123```
+
+### Add Todo Command
+
+Add a new todo item to the database.
+
+``` todo add <title> [description] ```
+
+
+#### Flags
+
+- `-t` or `--title`: Todo title (required).
+- `-d` or `--desc`: Todo description (required).
+
+#### Example
+
+```todo add -t "Read a book" -d "Read a book later today"```
 
 ---
 
