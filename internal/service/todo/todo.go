@@ -2,7 +2,6 @@ package todoservice
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"os"
 
@@ -50,8 +49,6 @@ func (todoService *service) ListTodos() {
 	t.SetOutputMirror(os.Stdout)
 	t.AppendHeader(table.Row{"ID", "Title", "Description", "Status"})
 
-	// Print the map as a table
-	fmt.Println("ID\tTitle\t\tDescription\t\tStatus")
 	for _, value := range todos {
 		t.AppendRow(table.Row{value.ID, value.Title, value.Description, value.Status})
 	}
