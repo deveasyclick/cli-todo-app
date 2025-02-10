@@ -78,6 +78,22 @@ Add a new todo item to the database.
 
 ```todo add -t "Read a book" -d "Read a book later today"```
 
+
+### List Todos Command
+
+The list command allows you to view all your todos.
+
+``` todo list```
+
+
+#### Flags
+
+- None required
+
+#### Example
+
+```todo list```
+
 ---
 
 ## Development
