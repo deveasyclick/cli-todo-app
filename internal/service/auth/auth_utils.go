@@ -1,4 +1,4 @@
-package auth
+package authservice
 
 import (
 	"errors"
@@ -8,8 +8,8 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/yusufniyi/cli-todo-app/internal/config"
-	file_service "github.com/yusufniyi/cli-todo-app/internal/service/file"
-	"github.com/yusufniyi/cli-todo-app/internal/utils"
+	"github.com/yusufniyi/cli-todo-app/internal/helpers/aesutils"
+	"github.com/yusufniyi/cli-todo-app/internal/helpers/file"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -77,14 +77,16 @@ func authenticate() (bool, Token) {
 	// Decrypt the token
 	// Decode the token
 	// Compare emails
-	encryptedToken, err := file_service.ReadFromFile(config.AuthFileName)
+	encryptedToken, err := file.Read(config.AuthFileName)
 	if err != nil {
-		log.Println("Warning: error reading encrypted token from file:", err)
+		log.Println("Warn:", err)
 	}
 
 	if encryptedToken != "" {
 		// Decrypt the data
-		decryptedToken, err := utils.Decrypt(config.TokenEncryptionKey, encryptedToken)
+		aes := aesutils.NewAESUtil()
+		aes.SetKey([]byte(config.TokenEncryptionKey))
+		decryptedToken, err := aes.Decrypt(encryptedToken)
 		if err != nil {
 			fmt.Println("Warning: failed to decrypt token:", err)
 			return false, Token{}

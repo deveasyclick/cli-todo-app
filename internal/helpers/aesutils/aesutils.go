@@ -1,4 +1,4 @@
-package utils
+package aesutils
 
 import (
 	"crypto/aes"
@@ -6,15 +6,30 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"io"
 )
 
+type AESUtil struct {
+	key []byte
+}
+
 // Encrypt encrypts plaintext using AES encryption.
-func Encrypt(key, plaintext string) (string, error) {
-	block, err := aes.NewCipher([]byte(key))
+func (aesUtil *AESUtil) SetKey(key []byte) {
+	aesUtil.validateKey(key)
+	aesUtil.key = key
+}
+
+func (aesUtil *AESUtil) validateKey(key []byte) {
+	if len(key) != 16 && len(key) != 24 && len(key) != 32 {
+		panic("Invalid key size. Only 128-bit, 192-bit, and 256-bit keys are supported.")
+	}
+}
+
+func (aesUtil *AESUtil) Encrypt(plaintext string) (string, error) {
+	aesUtil.validateKey(aesUtil.key)
+	block, err := aes.NewCipher(aesUtil.key)
 	if err != nil {
-		return "", fmt.Errorf("Invalid encryption key length: %w", err)
+		return "", err
 	}
 
 	// Generate a random initialization vector (IV)
@@ -34,13 +49,14 @@ func Encrypt(key, plaintext string) (string, error) {
 }
 
 // Decrypt decrypts ciphertext using AES encryption.
-func Decrypt(key, encrypted string) (string, error) {
+func (aesUtil *AESUtil) Decrypt(encrypted string) (string, error) {
+	aesUtil.validateKey(aesUtil.key)
 	data, err := base64.StdEncoding.DecodeString(encrypted)
 	if err != nil {
 		return "", err
 	}
 
-	block, err := aes.NewCipher([]byte(key))
+	block, err := aes.NewCipher(aesUtil.key)
 	if err != nil {
 		return "", err
 	}
@@ -58,4 +74,8 @@ func Decrypt(key, encrypted string) (string, error) {
 	stream.XORKeyStream(plaintext, ciphertext)
 
 	return string(plaintext), nil
+}
+
+func NewAESUtil() *AESUtil {
+	return &AESUtil{}
 }

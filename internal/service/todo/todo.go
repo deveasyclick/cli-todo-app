@@ -1,4 +1,4 @@
-package todoService
+package todoservice
 
 import (
 	"errors"
@@ -9,18 +9,18 @@ import (
 	"github.com/yusufniyi/cli-todo-app/internal/db/repositories"
 )
 
-type TodoService struct {
-	Repository repositories.Todo
+type service struct {
+	todoRepository repositories.Todo
 }
 
-func (todoService *TodoService) AddTodo(title string, desc string, userId int) {
+func (todoService *service) AddTodo(title string, desc string, userId int) {
 	todoObject := models.Todo{
 		Title:       title,
 		Description: desc,
 		UserId:      userId,
 		Status:      string(models.InProgress),
 	}
-	_, err := todoService.Repository.Add(&todoObject)
+	_, err := todoService.todoRepository.Add(&todoObject)
 	var pgErr *pgconn.PgError
 	// Log different message for duplicate todo error
 	if err != nil && errors.As(err, &pgErr) && pgErr.Code == "23505" {
@@ -32,10 +32,16 @@ func (todoService *TodoService) AddTodo(title string, desc string, userId int) {
 	log.Printf("Todo %s added to the database\n", title)
 }
 
-func (todoService *TodoService) RemoveTodo(title string) {
+func (todoService *service) RemoveTodo(title string) {
 
 }
 
-func (todoService *TodoService) ListTodos() {
+func (todoService *service) ListTodos() {
 
+}
+
+func New(todoRepository repositories.Todo) *service {
+	return &service{
+		todoRepository: todoRepository,
+	}
 }

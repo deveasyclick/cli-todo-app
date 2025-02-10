@@ -10,13 +10,7 @@ import (
 	"github.com/yusufniyi/cli-todo-app/internal/config"
 )
 
-type DB struct {
-	Conn *pgx.Conn
-}
-
-var (
-	DBInstance *DB
-)
+var DBInstance *pgx.Conn
 
 func ConnectDatabase() {
 	dbConn, err := pgx.Connect(context.Background(), config.DatabaseUrl)
@@ -25,7 +19,7 @@ func ConnectDatabase() {
 		os.Exit(1)
 	}
 	log.Println("Database connected")
-	DBInstance = &DB{Conn: dbConn}
+	DBInstance = dbConn
 
 	createUserTable := `
 		CREATE TABLE IF NOT EXISTS users (
@@ -59,6 +53,6 @@ func ConnectDatabase() {
 	fmt.Println("Tables created successfully!")
 }
 
-func (db *DB) Close() {
-	DBInstance.Conn.Close(context.Background())
+func Close() {
+	DBInstance.Close(context.Background())
 }

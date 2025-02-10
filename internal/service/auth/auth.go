@@ -1,4 +1,4 @@
-package auth
+package authservice
 
 import (
 	"fmt"
@@ -8,15 +8,15 @@ import (
 	"github.com/yusufniyi/cli-todo-app/internal/config"
 	"github.com/yusufniyi/cli-todo-app/internal/db/models"
 	"github.com/yusufniyi/cli-todo-app/internal/db/repositories"
-	file_service "github.com/yusufniyi/cli-todo-app/internal/service/file"
-	"github.com/yusufniyi/cli-todo-app/internal/utils"
+	"github.com/yusufniyi/cli-todo-app/internal/helpers/aesutils"
+	"github.com/yusufniyi/cli-todo-app/internal/helpers/file"
 )
 
-type AuthService struct {
-	UserRepository repositories.UserRepository
+type Service struct {
+	userRepository repositories.User
 }
 
-func (authService *AuthService) Login(email string, password string) {
+func (service *Service) Login(email string, password string) {
 	// Check if user is already authenticated and return if user is already authenticated
 
 	// fetch user from database
@@ -34,9 +34,14 @@ func (authService *AuthService) Login(email string, password string) {
 		return
 	}
 
-	user, err := authService.UserRepository.FindUser(email)
+	user, err := service.userRepository.FindUser(email)
 	if err != nil {
-		log.Fatalf("Fatal: Unable to fetch user with email %s from database", email)
+		log.Fatalf("Fatal: Unable to fetch user with email %s from database: %s", email, err)
+	}
+
+	// If user is zero-initialized it means the user is not found in the database
+	if user == (models.User{}) {
+		log.Fatalf("Fatal: User with email %s does not exist", email)
 	}
 
 	hasCorrectPassword := comparePassword(user.Password, password)
@@ -49,19 +54,21 @@ func (authService *AuthService) Login(email string, password string) {
 	if err != nil {
 		log.Fatalln("Fatal: Error generating jwt token for user")
 	}
-	encryptedToken, err := utils.Encrypt(config.TokenEncryptionKey, token)
+	aes := aesutils.NewAESUtil()
+	aes.SetKey([]byte(config.TokenEncryptionKey))
+	encryptedToken, err := aes.Encrypt(token)
 	if err != nil {
 		fmt.Println("Fatal: Failed to encrypt user data")
 		os.Exit(1)
 	}
-	if err = file_service.SaveToFile(config.AuthFileName, encryptedToken); err != nil {
+	if err = file.Save(config.AuthFileName, encryptedToken); err != nil {
 		log.Fatalln(err)
 	}
 
 	fmt.Println("User login successfully")
 }
 
-func (authService *AuthService) Signup(user *models.User) models.User {
+func (service *Service) Signup(user *models.User) models.User {
 	// hash the password
 	// save in db
 	// generate token
@@ -74,7 +81,7 @@ func (authService *AuthService) Signup(user *models.User) models.User {
 	var dbUser models.User
 	var token string
 
-	dbUser, err = authService.UserRepository.FindUser(user.Email)
+	dbUser, err = service.userRepository.FindUser(user.Email)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -83,7 +90,7 @@ func (authService *AuthService) Signup(user *models.User) models.User {
 		log.Fatalln("User already exists, please sign in.")
 	}
 
-	userId, err = authService.UserRepository.AddUser(user)
+	userId, err = service.userRepository.AddUser(user)
 	if err != nil {
 		log.Fatalln("Error adding user to the database", err)
 	}
@@ -93,7 +100,7 @@ func (authService *AuthService) Signup(user *models.User) models.User {
 		log.Fatalln(err)
 	}
 
-	if err := file_service.SaveToFile(config.AuthFileName, token); err != nil {
+	if err := file.Save(config.AuthFileName, token); err != nil {
 		fmt.Println("Unable to write login data to file")
 	}
 
@@ -101,18 +108,22 @@ func (authService *AuthService) Signup(user *models.User) models.User {
 	return dbUser
 }
 
-func (authService *AuthService) Logout() {
-	if err := file_service.DeleteFile(config.AuthFileName); err != nil && !os.IsNotExist(err) {
+func (service *Service) Logout() {
+	if err := file.Remove(config.AuthFileName); err != nil && !os.IsNotExist(err) {
 		log.Fatalln(err)
 	}
 
 	fmt.Println("User logout successfully")
 }
 
-func (authService *AuthService) Authenticate() Token {
+func (service *Service) Authenticate() Token {
 	isAuthenicated, token := authenticate()
 	if !isAuthenicated {
 		log.Fatalln("Unauthorized command, please login.")
 	}
 	return token
+}
+
+func New(userRepository repositories.User) *Service {
+	return &Service{userRepository: userRepository}
 }

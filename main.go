@@ -1,6 +1,3 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
 package main
 
 import (
@@ -10,6 +7,6 @@ import (
 
 func main() {
 	db.ConnectDatabase()
-	defer db.DBInstance.Close()
+	defer db.Close()
 	cmd.Execute()
 }

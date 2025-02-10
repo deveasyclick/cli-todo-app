@@ -1,4 +1,4 @@
-package file_service
+package file
 
 import (
 	"bufio"
@@ -7,7 +7,7 @@ import (
 )
 
 // SaveToFile writes encrypted data to a file.
-func SaveToFile(filePath, token string) error {
+func Save(filePath, token string) error {
 	// Open the file for writing, create it if it doesn't exist, and truncate it if it does
 	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
@@ -25,10 +25,13 @@ func SaveToFile(filePath, token string) error {
 }
 
 // ReadFromFile reads encrypted data from a file.
-func ReadFromFile(filePath string) (string, error) {
+func Read(filePath string) (string, error) {
 	// Open the file for reading
 	file, err := os.Open(filePath)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return "", fmt.Errorf("file %s does not exist", filePath)
+		}
 		return "", err
 	}
 	defer file.Close()
@@ -52,6 +55,6 @@ func ReadFromFile(filePath string) (string, error) {
 }
 
 // DeleteFile deletes the file storing the data.
-func DeleteFile(filename string) error {
+func Remove(filename string) error {
 	return os.Remove(filename)
 }
