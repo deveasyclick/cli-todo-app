@@ -40,5 +40,14 @@
       "args": ["add", "--title", "Read some books", "-d", "Read book by 4pm"],
       "console": "integratedTerminal"
     },
+    {
+      "name": "Debug List Todos",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}",
+      "args": ["list"],
+      "console": "integratedTerminal"
+    },
   ]
 }
