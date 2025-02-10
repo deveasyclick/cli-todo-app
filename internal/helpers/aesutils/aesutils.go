@@ -6,7 +6,6 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"io"
 )
 
@@ -16,9 +15,7 @@ type AESUtil struct {
 
 // Encrypt encrypts plaintext using AES encryption.
 func (aesUtil *AESUtil) SetKey(key []byte) {
-	if len(key) != 16 && len(key) != 24 && len(key) != 32 {
-		panic("Invalid key size. Only 128-bit, 192-bit, and 256-bit keys are supported.")
-	}
+	aesUtil.validateKey(key)
 	aesUtil.key = key
 }
 
@@ -32,7 +29,7 @@ func (aesUtil *AESUtil) Encrypt(plaintext string) (string, error) {
 	aesUtil.validateKey(aesUtil.key)
 	block, err := aes.NewCipher(aesUtil.key)
 	if err != nil {
-		return "", fmt.Errorf("Invalid encryption key length: %w", err)
+		return "", err
 	}
 
 	// Generate a random initialization vector (IV)
@@ -59,7 +56,7 @@ func (aesUtil *AESUtil) Decrypt(encrypted string) (string, error) {
 		return "", err
 	}
 
-	block, err := aes.NewCipher([]byte(aesUtil.key))
+	block, err := aes.NewCipher(aesUtil.key)
 	if err != nil {
 		return "", err
 	}

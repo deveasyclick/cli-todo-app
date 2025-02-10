@@ -39,7 +39,8 @@ func (service *Service) Login(email string, password string) {
 		log.Fatalf("Fatal: Unable to fetch user with email %s from database: %s", email, err)
 	}
 
-	if user.Email == "" {
+	// If user is zero-initialized it means the user is not found in the database
+	if user == (models.User{}) {
 		log.Fatalf("Fatal: User with email %s does not exist", email)
 	}
 

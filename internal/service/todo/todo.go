@@ -10,7 +10,7 @@ import (
 )
 
 type service struct {
-	TodoRepository repositories.Todo
+	todoRepository repositories.Todo
 }
 
 func (todoService *service) AddTodo(title string, desc string, userId int) {
@@ -20,7 +20,7 @@ func (todoService *service) AddTodo(title string, desc string, userId int) {
 		UserId:      userId,
 		Status:      string(models.InProgress),
 	}
-	_, err := todoService.TodoRepository.Add(&todoObject)
+	_, err := todoService.todoRepository.Add(&todoObject)
 	var pgErr *pgconn.PgError
 	// Log different message for duplicate todo error
 	if err != nil && errors.As(err, &pgErr) && pgErr.Code == "23505" {
@@ -42,6 +42,6 @@ func (todoService *service) ListTodos() {
 
 func New(todoRepository repositories.Todo) *service {
 	return &service{
-		TodoRepository: todoRepository,
+		todoRepository: todoRepository,
 	}
 }
