@@ -4,7 +4,7 @@ type Status string
 
 const (
 	Pending    Status = "pending"
-	InProgress Status = "in_progress"
+	InProgress Status = "inProgress"
 	Completed  Status = "completed"
 	Failed     Status = "failed"
 )

@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/yusufniyi/cli-todo-app/internal/db/repositories"
-	"github.com/yusufniyi/cli-todo-app/internal/service/auth"
+	authservice "github.com/yusufniyi/cli-todo-app/internal/service/auth"
 )
 
 func init() {
@@ -15,9 +15,8 @@ var logoutCmd = &cobra.Command{
 	Short: "Logout",
 	Long:  "Login of todo app",
 	Run: func(cmd *cobra.Command, args []string) {
-		auth := auth.AuthService{
-			UserRepository: repositories.UserRepository{},
-		}
-		auth.Logout()
+		repoFactory := &repositories.Factory{}
+		authService := authservice.New(repoFactory.NewUserRepository())
+		authService.Logout()
 	},
 }

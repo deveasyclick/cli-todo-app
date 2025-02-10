@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/yusufniyi/cli-todo-app/internal/db/models"
 	"github.com/yusufniyi/cli-todo-app/internal/db/repositories"
-	"github.com/yusufniyi/cli-todo-app/internal/service/auth"
+	authservice "github.com/yusufniyi/cli-todo-app/internal/service/auth"
 )
 
 var (
@@ -33,14 +33,13 @@ var signupCmd = &cobra.Command{
 		if userSignupEmail == "" || userSignupPassword == "" || userSignupName == "" {
 			log.Fatal("fatal: You must specify the username, email and password")
 		}
-		auth := auth.AuthService{
-			UserRepository: repositories.UserRepository{},
-		}
+		repoFactory := &repositories.Factory{}
+		authService := authservice.New(repoFactory.NewUserRepository())
 		user := models.User{
 			Name:     userSignupName,
 			Password: userSignupPassword,
 			Email:    userSignupEmail,
 		}
-		auth.Signup(&user)
+		authService.Signup(&user)
 	},
 }

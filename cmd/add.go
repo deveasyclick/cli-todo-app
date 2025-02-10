@@ -5,8 +5,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/yusufniyi/cli-todo-app/internal/db/repositories"
-	"github.com/yusufniyi/cli-todo-app/internal/service/auth"
-	todoService "github.com/yusufniyi/cli-todo-app/internal/service/todo"
+	authservice "github.com/yusufniyi/cli-todo-app/internal/service/auth"
+	todoservice "github.com/yusufniyi/cli-todo-app/internal/service/todo"
 )
 
 var (
@@ -29,14 +29,11 @@ var addCmd = &cobra.Command{
 		fmt.Println("Add command is running", addTodoTitle, addTododesc)
 		// Check if user is authenticated
 		// Add todo to database
-		auth := auth.AuthService{
-			UserRepository: repositories.UserRepository{},
-		}
-		token := auth.Authenticate()
+		repoFactory := &repositories.Factory{}
+		authService := authservice.New(repoFactory.NewUserRepository())
+		token := authService.Authenticate()
 
-		todoService := todoService.TodoService{
-			Repository: repositories.Todo{},
-		}
+		todoService := todoservice.New(repoFactory.NewTodoRepository())
 		todoService.AddTodo(addTodoTitle, addTododesc, token.ID)
 	},
 }
