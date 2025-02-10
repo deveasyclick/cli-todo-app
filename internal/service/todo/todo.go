@@ -3,8 +3,10 @@ package todoservice
 import (
 	"errors"
 	"log"
+	"os"
 
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/yusufniyi/cli-todo-app/internal/db/models"
 	"github.com/yusufniyi/cli-todo-app/internal/db/repositories"
 )
@@ -37,7 +39,20 @@ func (todoService *service) RemoveTodo(title string) {
 }
 
 func (todoService *service) ListTodos() {
+	todos, err := todoService.todoRepository.Find()
+	if err != nil {
+		log.Fatalf("Fatal: Unable to fetch todos from database: %s", err)
+	}
 
+	// Create a table
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	t.AppendHeader(table.Row{"ID", "Title", "Description", "Status"})
+
+	for _, value := range todos {
+		t.AppendRow(table.Row{value.ID, value.Title, value.Description, value.Status})
+	}
+	t.Render()
 }
 
 func New(todoRepository repositories.Todo) *service {
